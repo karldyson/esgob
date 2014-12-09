@@ -1,0 +1,124 @@
+#!/usr/bin/perl
+
+use strict;
+
+use LWP::UserAgent;
+use JSON;
+
+my $debug = $ENV{ESGOB_DEBUG} || 0;
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout(10);
+$ua->env_proxy();
+
+my $url = 'https://api.esgob.com/1.0';
+
+my %actions = (
+	'accounts.get' => [qw/account key/],
+	'domains.slaves.add' => [qw/account key masterip domain/],
+	'domains.slaves.list' => [qw/account key/],
+	'domains.slaves.delete' => [qw/account key domain/],
+	'domains.slaves.forcetransfer' => [qw/account key domain/],
+	'domains.slaves.updatemasterip' => [qw/account key masterip domain/],
+	'domains.slaves.axfrout.add' => [qw/account key axfrip domain/],
+	'domains.slaves.axfrout.delete' => [qw/account key axfrip domain/],
+	'domains.list' => [qw/account key/],
+	'domains.tools.soacheck' => [qw/account key domain/],
+);
+
+my %data;
+my @configs = qw|/etc/esgob.conf /usr/local/etc/esgob.conf ~/.esgobrc|;
+for(@configs) {
+	my $c = $_;
+	if(-f $c) {
+		if(open(C, $c)) {
+			print "found config file $c\n" if $debug;
+			while(<C>) {
+				next if m/^\s*#/;
+				if(m/^(.*?)\s+(.*?)$/) {
+					$data{$1} = $2;
+					print "found $1 -> $2\n" if $debug;
+				}
+			}
+			close C;
+		}
+		last;
+	}
+}
+
+my $action = shift || die "no action; choose from:\n  ".join("\n  ", sort keys %actions)."\n";
+
+for(@ARGV) {
+	if(m/^(.*?)=(.*?)$/) {
+		$data{$1} = $2;
+	}
+}
+
+if($actions{$action}) {
+	$url .= '/'.$action;
+	print "action $action requires data items ".join(", ", @{$actions{$action}})."\n" if $debug;
+	my @p;
+	for(@{$actions{$action}}) {
+		my $a = $_;
+		if($data{$a}) {
+			print "$a = $data{$a}\n" if $debug;
+			push @p, "$a=$data{$a}";
+		} else {
+			die "missing data item $a\n$action requires data items ".join(", ", @{$actions{$action}})."\n";
+		}
+	}
+	$url .= '?'.join("&", @p);
+} else {
+	die "invalid action [$action]; choose from:\n  ".join("\n  ", sort keys %actions)."\n";
+}
+
+print "url is $url\n" if $debug;
+
+my $r = $ua->get($url);
+
+print "\nResults:\n" if $debug;
+
+if($r->is_success) {
+	print $r->decoded_content."\n--\n" if $debug;
+	my $content = decode_json($r->decoded_content);
+	output($content);
+} else {
+	die $r->status_line."\n";
+}
+
+my $level_base = 0;
+sub output {
+	my $thing = shift;
+	my $level = shift || $level_base;
+	if(ref($thing) eq 'HASH') {
+		my $l = 0;
+		for(keys %$thing) {
+			my $t = $_;
+			if(ref($thing->{$t})) {
+				print " " x $level;
+				print "  " if $l > 0;
+				print "$t :\n";
+				output($thing->{$t}, $level + 2);
+			} else {
+				print " " x $level;
+				print "  " if $l > 0;
+				print "$t : $thing->{$t}\n";
+			}
+			$l++;
+		}
+	}
+	elsif(ref($thing) eq 'ARRAY') {
+		my $l = 0;
+		for(@$thing) {
+			my $t = $_;
+			if(ref($t)) {
+				output($t, $level + 2);
+			} else {
+				print " " x $level;
+				print "  " if $l > 0;
+				print "$t\n";
+			}
+			$l++;
+		}
+	}
+}
