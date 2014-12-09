@@ -120,5 +120,7 @@ sub output {
 			}
 			$l++;
 		}
+	} else {
+		die "can't handle object type ".ref($thing)."\n";
 	}
 }
