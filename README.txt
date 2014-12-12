@@ -6,6 +6,11 @@ It does what I need it to, but is supplied with no warranty or expression that i
 
 In short, if it eats your cat, or causes your hamster to blow a gasket, that's not my fault.
 
+=== Requirements ===
+* Perl modules:
+** LWP::UserAgent
+** JSON
+
 === Configuration ===
 You can whack standard config items in any of (and searched in this order) :
 
