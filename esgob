@@ -91,14 +91,19 @@ sub output {
 	my $thing = shift;
 	my $level = shift || $level_base;
 	if(ref($thing) eq 'HASH') {
+		if(scalar(keys %$thing)) {
+			print "\n" if scalar(keys %$thing);
+			print "  ";
+		}
 		my $l = 0;
 		for(keys %$thing) {
 			my $t = $_;
 			if(ref($thing->{$t})) {
 				print " " x $level;
 				print "  " if $l > 0;
-				print "$t :\n";
+				print "$t : ";
 				output($thing->{$t}, $level + 2);
+				print "\n";
 			} else {
 				print " " x $level;
 				print "  " if $l > 0;
@@ -120,6 +125,11 @@ sub output {
 			}
 			$l++;
 		}
+	}
+	elsif(ref($thing) eq 'JSON::XS::Boolean') {
+		#print " " x $level;
+		#print "  ";
+		print $thing;
 	} else {
 		die "can't handle object type ".ref($thing)."\n";
 	}
