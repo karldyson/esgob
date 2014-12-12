@@ -23,3 +23,8 @@ Running esgob without any options will show you the API methods supported. Runni
 but missing required parameters will show you the ones required, as per the API docs at:
 
 https://noc.esgob.com/docs/api
+
+Debugging information of this script can be obtained by setting
+environment variable ESGOB_DEBUG to 1:
+
+export ESGIB_DEBUG=1
