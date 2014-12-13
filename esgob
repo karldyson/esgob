@@ -42,7 +42,8 @@ for(@configs) {
 			}
 			close C;
 		}
-		last;
+		# commented out; this means you can overwite global settings in a user's .esgobrc
+		#last;
 	}
 }
 
