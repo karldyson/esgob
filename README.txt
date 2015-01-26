@@ -24,8 +24,8 @@ account some_account_name
 key kskjhdkjdhkjhdkjdhdkjhdkjhd
 
 === Usage ===
-Running esgob without any options will show you the API methods supported. Running with an action,
-but missing required parameters will show you the ones required, as per the API docs at:
+Running esgob without any options will show you the API methods supported.
+Running with an action, but missing required parameters will show you the ones required, as per the API docs at:
 
 https://noc.esgob.com/docs/api
 
