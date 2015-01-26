@@ -29,7 +29,6 @@ Running with an action, but missing required parameters will show you the ones r
 
 https://noc.esgob.com/docs/api
 
-Debugging information of this script can be obtained by setting
-environment variable ESGOB_DEBUG to 1:
+Debugging information of this script can be obtained by setting environment variable ESGOB_DEBUG to 1:
 
 export ESGOB_DEBUG=1
