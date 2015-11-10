@@ -127,7 +127,7 @@ sub output {
 			$l++;
 		}
 	}
-	elsif(ref($thing) eq 'JSON::XS::Boolean') {
+	elsif(ref($thing) eq 'JSON::XS::Boolean' || ref($thing) eq 'JSON::PP::Boolean') {
 		#print " " x $level;
 		#print "  ";
 		print $thing;
